@@ -1,0 +1,8 @@
+Responsibilities:
+
+- Read notes from note directory
+- Watch note directory for changes, report to memory
+- Write changes back to note directory
+- Manage notes in memory
+- Search notes in memory
+

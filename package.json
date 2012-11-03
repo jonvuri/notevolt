@@ -1,0 +1,8 @@
+{
+	"main": "index.html",
+	"name": "Note Volt",
+	"version": "0.1",
+	"window": {
+		"toolbar": false
+	}
+}
