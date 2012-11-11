@@ -1,50 +1,62 @@
 var fs = require('fs');
 var path = require('path');
+var _ = require('lodash');
+var note_prototype = require('./note_prototype');
 var config = require('./config');
 
 var note_files = {};
 
-function make_note(file_path, callback) {
+function _trimNoteExtensions(filePath) {
+    if (filePath.indexOf('.txt', filePath.length - 4) !== -1) {
+        filePath = filePath.slice(0, 4);
+    }
+	return filePath;
+}
+
+function _makeNote(file_path, callback) {
 	fs.readFile(path.join(config.note_directory, file_path), config.encoding, function (err, contents) {
 		if (err) {
 			throw err;
 		}
-		callback({
-			title: file_path.indexOf('.txt', file_path.length - 4) !== -1 ? file_path.slice(0, -4) : file_path,
-			body: contents.toString()
-		});
+		var note = _.extend(note_prototype, {
+            title: _trimNoteExtensions(file_path),
+            contents: contents
+        });
+		callback(note);
 	});
 }
 
-note_files.get_list = function (callback) {
+note_files.getList = function (callback) {
 	fs.readdir(config.note_directory, function (err, files) {
-		var files_left = files.length,
-			notes = [];
-
 		if (err) {
 			throw err;
 		}
-
-		files.forEach(function (file) {
-			make_note(file, function (note) {
-				notes.push(note);
-				--files_left;
-				if (files_left === 0) {
-					callback(notes);
-				}
-			});
-		});
+		var	notes = [],
+            tick = _.after(files.length, function () { callback(notes); });
+        files.forEach(function (file) {
+            _makeNote(file, function (n) {
+                notes.push(n);
+                tick();
+            });
+        });
 	});
 }
 
-// Updates or creates a note
 note_files.update = function (note) {
 	
 }
 
-// Expected to be set to a function with a parameter 'note'
-// to be called when a note's file changes
-//note_files.onChange
+note_files.onchange = (function () {
+	var callbacks = null;
+	return function (callback) {
+		if (callbacks !== null) {
+			callbacks.push(callback);
+		} else {
+			callbacks = [callback];
+			_watch_note_directory();
+		}
+	};
+})();
 
 module.exports = exports = note_files;
 

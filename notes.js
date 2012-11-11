@@ -1,7 +1,10 @@
-var config = require('config');
-var note_files = require('note_files');
+var _ = require('underscore');
+var config = require('./config');
+var note_files = require('./note_files');
 
 var notes = {};
+
+var note_list = null;
 
 // Returns full note based on title
 notes.get = function (title) {
@@ -11,12 +14,6 @@ notes.get = function (title) {
 // Updates or creates a note (asynchronously propagates to files)
 notes.update = function (note) {
 
-}
-
-notes.get_list = function () {
-	var notes = [];
-
-	return notes;
 }
 
 // Called with a single parameter note_summary_list whenever there is a change due to filtering and/or note
