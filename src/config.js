@@ -1,7 +1,7 @@
-
 var config = {};
 
-config.note_directory = './notes';
+config.noteDirectory = './notes';
 config.encoding = 'utf-8';
 
 module.exports = exports = config;
+
