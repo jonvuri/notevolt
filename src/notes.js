@@ -1,10 +1,19 @@
-var _ = require('underscore');
+var _ = require('lodash');
 var config = require('./config');
-var note_files = require('./note_files');
+var files = require('./files');
 
 var notes = {};
 
-var note_list = null;
+var noteSet,
+    notesCallbacks;
+
+var updateChangedNote = function updateChangedNote(file, note) {
+    noteSet[file] = note;
+    refilter();
+}
+
+var refilter = function refilter() {
+}
 
 // Returns full note based on title
 notes.get = function (title) {
@@ -16,10 +25,27 @@ notes.update = function (note) {
 
 }
 
-// Called with a single parameter note_summary_list whenever there is a change due to filtering and/or note
-// files changing; note_summary_list is like note_list, but with truncated bodies
-notes.onchange = function () {
-	console.debug('Warning: notes.onchange not set');
+// Initiates filter on note list
+// notes.changed will fire when done
+notes.filter = function (string) {
+}
+
+notes.load = function (callbacks) {
+    var watchCallbacks = {};
+    
+    notesCallbacks = _.defaults(callbacks, {
+        changed: function () {}
+    });
+    
+    watchCallbacks.init = function init(notes) {
+        noteSet = notes;
+        callbacks.changed(noteSet);
+    }
+    watchCallbacks.created = updateChangedNote;
+    watchCallbacks.changed = updateChangedNote;
+    watchCallbacks.removed = updateChangedNote;
+
+    files.watch(watchCallbacks);
 }
 
 module.exports = exports = notes;
