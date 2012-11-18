@@ -5,7 +5,8 @@ var files = require('./files');
 var notes = {};
 
 var noteSet,
-    notesCallbacks;
+    filter,
+    callbacks;
 
 var updateChangedNote = function updateChangedNote(file, note) {
     noteSet[file] = note;
@@ -28,16 +29,17 @@ notes.update = function (note) {
 // Initiates filter on note list
 // notes.changed will fire when done
 notes.filter = function (string) {
+    
 }
 
-notes.load = function (callbacks) {
+notes.load = function (notesCallbacks) {
     var watchCallbacks = {};
     
-    notesCallbacks = _.defaults(callbacks, {
+    callbacks = _.defaults(notesCallbacks, {
         changed: function () {}
     });
     
-    watchCallbacks.init = function init(notes) {
+    callbacks.init = function init(notes) {
         noteSet = notes;
         callbacks.changed(noteSet);
     }
