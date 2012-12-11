@@ -4,14 +4,23 @@ var files = require('./files');
 
 var notes = {};
 
+var allNotes = {},
+    filteredNotes = {},
+    filterTerms = [],
+    callbacks;
 
+var handleInit = function 
 
+var handleNoteChange = function handleNoteChange(key, note) {
+    // Set note property in allNotes
+    // Filter single note
+    // Fire filter changed to main.js
+};
 
-
-
-
-
-
+var handleNoteRemoved = function handleNoteRemoved(key) {
+    // Delete note property in allNotes and filteredNotes
+    // Fire filter changed to main.js
+}
 
 
 
