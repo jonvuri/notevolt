@@ -4,33 +4,70 @@ var files = require('./files');
 
 var notes = {};
 
-var noteSet,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var allNotes,
     filter,
     callbacks;
 
-var updateChangedNote = function updateChangedNote(file, note) {
-    noteSet[file] = note;
-    refilter();
-}
+var sendChanged = function sendChanged() {
+    callbacks.changed(filter);
+};
 
-var refilter = function refilter() {
-}
+var changeNote = function changeNote(file, note) {
+    allNotes[file] = note;
+    // Check if changed note applies to current filter
+};
+
+var removeNote = function removeNote(file) {
+    delete allNotes[file];
+    delete filter[file];
+};
 
 // Returns full note based on title
 notes.get = function (title) {
 
-}
+};
 
 // Updates or creates a note (asynchronously propagates to files)
 notes.update = function (note) {
 
-}
+};
 
 // Initiates filter on note list
 // notes.changed will fire when done
 notes.filter = function (string) {
     
-}
+};
 
 notes.load = function (notesCallbacks) {
     var watchCallbacks = {};
@@ -40,12 +77,12 @@ notes.load = function (notesCallbacks) {
     });
     
     callbacks.init = function init(notes) {
-        noteSet = notes;
-        callbacks.changed(noteSet);
+        filter = allNotes = notes;
+        sendChanged();
     }
-    watchCallbacks.created = updateChangedNote;
-    watchCallbacks.changed = updateChangedNote;
-    watchCallbacks.removed = updateChangedNote;
+    watchCallbacks.created = changeNote;
+    watchCallbacks.changed = changeNote;
+    watchCallbacks.removed = removeNote;
 
     files.watch(watchCallbacks);
 }

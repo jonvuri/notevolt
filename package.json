@@ -2,6 +2,25 @@
 	"main": "index.html",
 	"name": "Note Volt",
 	"version": "0.1",
+    "author": "Jonathan Rajavuori <jrajav@gmail.com>",
+    "description": "An application for taking notes",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/jrajav/notevolt"
+    },
+    "keywords": [
+        "notational",
+        "velocity"
+    ],
+    "dependencies": {
+        "lodash": "~1.0",
+        "mkpath": "0.x",
+        "mmmagic": "~0.2"
+    },
+    "devDependencies": {
+        "mocha": "~1.7",
+        "chai": "~1.4"
+    },
 	"window": {
 		"toolbar": false
 	}
