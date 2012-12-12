@@ -7,7 +7,7 @@ var fs = require('fs'),
 var magic = require('./magic'),
     noteProto = require('./prototype');
 
-var files = {}; // Export
+var files = {};
 
 var makeNote = function makeNote(obj) {
     return _.extend(_.clone(noteProto, true), obj);
@@ -31,7 +31,6 @@ var readFileAsNote = function readFileAsNote(file, callback) {
         }
     });
 };
-    
 
 files.watch = function watch(dir, callbacks) { 
     var changeIfNote = function changeIfNote(file) {
@@ -59,15 +58,18 @@ files.watch = function watch(dir, callbacks) {
     });
     
     mkpath(dir, function (err) {
-        callbacks.init(err);
-        
-        m_watch.createMonitor(dir, function (monitor) {
-            _.keys(monitor.files).forEach(changeIfNote);
-            
-            monitor.on('created', changeIfNote);
-            monitor.on('changed', changeIfNoteElseRemove);
-            monitor.on('removed', callbacks.removed);
-        });
+        if (err) {
+            callbacks.init(err);
+        } else {
+            m_watch.createMonitor(dir, function (monitor) {
+                _.keys(monitor.files).forEach(changeIfNote);
+                callback(null);
+                
+                monitor.on('created', changeIfNote);
+                monitor.on('changed', changeIfNoteElseRemove);
+                monitor.on('removed', callbacks.removed);
+            });
+        }
     });
 };
 

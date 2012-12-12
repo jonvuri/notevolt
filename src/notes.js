@@ -5,11 +5,13 @@ var files = require('./files');
 var notes = {};
 
 var allNotes = {},
-    filteredNotes = {},
+    filteredNotes = [],
     filterTerms = [],
     callbacks;
 
-var handleInit = function 
+var handleInit = function handleInit(err) {
+    callbacks.init(err);
+};
 
 var handleNoteChange = function handleNoteChange(key, note) {
     // Set note property in allNotes
@@ -20,7 +22,26 @@ var handleNoteChange = function handleNoteChange(key, note) {
 var handleNoteRemoved = function handleNoteRemoved(key) {
     // Delete note property in allNotes and filteredNotes
     // Fire filter changed to main.js
-}
+};
+
+notes.init = function init(notesCallbacks) {
+    var watchCallbacks = {};
+    
+    callbacks = _.defaults(notesCallbacks, {
+        init: function () {},
+        changed: function () {}
+    });
+    
+    callbacks.init = function init(notes) {
+        filter = allNotes = notes;
+        sendChanged();
+    }
+    watchCallbacks.created = changeNote;
+    watchCallbacks.changed = changeNote;
+    watchCallbacks.removed = removeNote;
+
+    files.watch(watchCallbacks);
+};
 
 
 
@@ -82,6 +103,7 @@ notes.load = function (notesCallbacks) {
     var watchCallbacks = {};
     
     callbacks = _.defaults(notesCallbacks, {
+        init: function () {},
         changed: function () {}
     });
     
