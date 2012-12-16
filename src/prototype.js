@@ -2,7 +2,7 @@ var crypto = require('crypto');
 
 var note_prototype = {};
 
-note_prototype.name = null;
+note_prototype.key = null;
 note_prototype.title = null;
 note_prototype.contents = null;
 note_prototype.toString = function () {
@@ -13,3 +13,4 @@ note_prototype.toString = function () {
 }
 
 module.exports = exports = note_prototype;
+

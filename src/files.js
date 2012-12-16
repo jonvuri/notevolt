@@ -23,6 +23,7 @@ var readFileAsNote = function readFileAsNote(file, callback) {
                     callback(null);
                 } else {
                     callback(makeNote({
+                        key: file,
                         title: path.basename(file, '.txt'),
                         contents: contents
                     }));
@@ -33,7 +34,7 @@ var readFileAsNote = function readFileAsNote(file, callback) {
 };
 
 files.watch = function watch(dir, callbacks) { 
-    var changeIfNote = function changeIfNote(file) {
+    var changeIfNote = function (file) {
             readFileAsNote(file, function (note) {
                 if (note) {
                     callbacks.changed(file, note);
@@ -41,7 +42,7 @@ files.watch = function watch(dir, callbacks) {
             });
         },
         
-        changeIfNoteElseRemove = function changeIfNoteElseRemove(file) {
+        changeIfNoteElseRemove = function (file) {
             readFileAsNote(file, function (note) {
                 if (note) {
                     callbacks.changed(file, note);
@@ -62,8 +63,18 @@ files.watch = function watch(dir, callbacks) {
             callbacks.init(err);
         } else {
             m_watch.createMonitor(dir, function (monitor) {
-                _.keys(monitor.files).forEach(changeIfNote);
-                callback(null);
+                var initialNotes = {},
+                    files = _.keys(monitor.files),
+                    init = _.after(files.length, callbacks.init);
+
+                files.forEach(function (file) {
+                    readFileAsNote(file, function (note) {
+                        if (note) {
+                            initialNotes[file] = note;
+                        }
+                        init(null, initialNotes);
+                    });
+                }); 
                 
                 monitor.on('created', changeIfNote);
                 monitor.on('changed', changeIfNoteElseRemove);
