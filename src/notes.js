@@ -1,15 +1,16 @@
 var _ = require('lodash');
-var config = require('./config');
-var files = require('./files');
-var filter = require('./filter');
+
+var config = require('./config'),
+    files = require('./files'),
+    filter = require('./filter');
 
 var notes = {};
 
 var allNotes = {},
-    filteredNotes = [];
+    callbacks;
 
-notes.init = function init(callbacks) {
-    _.defaults(callbacks, {
+notes.init = function init(cbs) {
+    callbacks = _.defaults(cbs, {
         init: function () {},
         filter: function () {}
     });
@@ -22,14 +23,18 @@ notes.init = function init(callbacks) {
         
         changed: function (key, note) {
             allNotes[key] = note;
-            filter.fold(note, callbacks.filter);
+            filter.single(note, allNotes, callbacks.filter);
         },
         
         removed: function (key) {
             delete allNotes[key];
-            filter.remove(note, callbacks.filter);
+            filter.remove(note, allNotes, callbacks.filter);
         }
     });
+};
+
+notes.filter = function filter(query) {
+    return filter.all(query, allNotes, callbacks.filter);
 };
 
 module.exports = exports = notes;

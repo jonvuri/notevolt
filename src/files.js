@@ -22,11 +22,18 @@ var readFileAsNote = function readFileAsNote(file, callback) {
                 if (!contents) {
                     callback(null);
                 } else {
-                    callback(makeNote({
-                        key: file,
-                        title: path.basename(file, '.txt'),
-                        contents: contents
-                    }));
+                    fs.stat(file, function (err, stats) {
+                        if (err) {
+                            callback(null);
+                        } else {
+                            callback(makeNote({
+                                key: file,
+                                title: path.basename(file, '.txt'),
+                                contents: contents,
+                                timeModified: stats.mtime
+                            }));
+                        }
+                    });
                 }
             });
         }
