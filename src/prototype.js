@@ -14,4 +14,3 @@ note_prototype.toString = function () {
 }
 
 module.exports = exports = note_prototype;
-

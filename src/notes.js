@@ -23,12 +23,12 @@ notes.init = function init(cbs) {
         
         changed: function (key, note) {
             allNotes[key] = note;
-            filter.single(note, allNotes, callbacks.filter);
+            filter.add(note, callbacks.filter);
         },
         
         removed: function (key) {
             delete allNotes[key];
-            filter.remove(note, allNotes, callbacks.filter);
+            filter.remove(note, callbacks.filter);
         }
     });
 };
@@ -38,4 +38,3 @@ notes.filter = function filter(query) {
 };
 
 module.exports = exports = notes;
-

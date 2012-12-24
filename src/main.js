@@ -45,4 +45,3 @@ var changed = function changed(filter) {
 window.onload = function () {
     
 }
-

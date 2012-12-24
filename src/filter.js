@@ -5,16 +5,21 @@ var config = require('./config');
 var filter = {};
 
 var query = '',
-    filterSet = {},
-    filterList = [];
+    currentFilter = {
+        set: {},
+        list: []
+    };
 
 var test = function test(note, query) {
     return note.indexOf(query) !== -1;
 };
 
-var sort = function sort(note) {
-    return note['timeModified'].getTime();
+var timeModifiedSort = function timeModifiedSort(note) {
+    // Sort more recent times (higher number) towards the start of the array
+    return -note.timeModified;
 };
+
+var sort = timeModifiedSort;
 
 filter.all = function all(query, allNotes, callback) {
     var newFilterSet = {},
@@ -40,10 +45,10 @@ filter.all = function all(query, allNotes, callback) {
     
     newFilterList = _.sortBy(newFilterSet, sort);
     
-    filterSet = newFilterSet;
-    filterList = newFilterList;
+    currentFilter.set = newFilterSet;
+    currentFilter.list = newFilterList;
     
-    callback
+    callback(currentFilter);
 };
 
 filter.add = function add(note, callback) {
@@ -51,8 +56,8 @@ filter.add = function add(note, callback) {
     if (note.test(query)) {
         filterSet[note.key] = note;
         
-        index = _.sortedIndex(filterList, note, 'timeModified'
-        filterList.splice(_.sortedIndex(filterList, 
+        index = _.sortedIndex(filterList, note, sort);
+        filterList.splice(index, 0, note);
     }
 };
 
@@ -61,4 +66,3 @@ filter.remove = function remove(note, callback) {
 };
 
 module.exports = exports = filter;
-

@@ -96,4 +96,3 @@ files.update = function update(note) {
 };
 
 module.exports = exports = files;
-
