@@ -15,10 +15,11 @@ notes.init = function init(cbs) {
         filter: function () {}
     });
     
-    files.watch({
+    files.watch(config.noteDirectory, {
         init: function (err, initialNotes) {
             allNotes = initialNotes;
-            callbacks.init(err, allNotes);
+            callbacks.init(err);
+            notes.filter('');
         },
         
         changed: function (key, note) {
@@ -33,7 +34,7 @@ notes.init = function init(cbs) {
     });
 };
 
-notes.filter = function filter(query) {
+notes.filter = function (query) {
     return filter.all(query, allNotes, callbacks.filter);
 };
 

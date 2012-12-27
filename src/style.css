@@ -1,0 +1,54 @@
+html,
+body {
+  overflow: hidden;
+}
+#full {
+  width: 100%;
+  height: 100%;
+}
+#searchbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1.4em;
+}
+#searchbox {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  outline: none;
+}
+#notelistcol {
+  position: absolute;
+  top: 1.4em;
+  bottom: 0;
+  left: 0;
+  overflow: auto;
+  width: 30%;
+}
+#noteviewcol {
+  position: absolute;
+  top: 1.4em;
+  bottom: 0;
+  right: 0;
+  overflow: auto;
+  width: 70%;
+}
+#note {
+  width: 100%;
+  height: 4.6em;
+}
+#note-title {
+  width: 100%;
+  height: 1.15em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+#note-preview {
+  width: 100%;
+  height: 3.4499999999999997em;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}

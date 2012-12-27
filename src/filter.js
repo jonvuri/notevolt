@@ -4,7 +4,7 @@ var config = require('./config');
 
 var filter = {};
 
-var query = '',
+var currentQuery = '',
     currentFilter = {
         set: {},
         list: []
@@ -19,12 +19,15 @@ var timeModifiedSort = function timeModifiedSort(note) {
     return -note.timeModified;
 };
 
+// Sort function intended for _.sort* functions, not Array.sort
 var sort = timeModifiedSort;
 
-filter.all = function all(query, allNotes, callback) {
+filter.all = function all(newQuery, allNotes, callback) {
     var newFilterSet = {},
-        newFilterList = [];
+        oldQuery = currentQuery;
     
+    currentQuery = newQuery;
+
     // Set global query to new query
     // Check if existing query is prefix of new query
     // Split query on words
@@ -37,32 +40,46 @@ filter.all = function all(query, allNotes, callback) {
     // Sort set into list
     // Set global set and global list, call callback
 
-    _.each(allNotes, function (note, key) {
-        if (note.test(query)) {
-            newFilterSet[key] = note;
-        }
-    });
-    
-    newFilterList = _.sortBy(newFilterSet, sort);
+    if (newQuery === '') {
+        newFilterSet = allNotes;
+    } else {
+        _.each(allNotes, function (note, key) {
+            if (note.test(query)) {
+                newFilterSet[key] = note;
+            }
+        });
+    }
     
     currentFilter.set = newFilterSet;
-    currentFilter.list = newFilterList;
+    currentFilter.list = _.sortBy(newFilterSet, sort);
     
     callback(currentFilter);
 };
 
 filter.add = function add(note, callback) {
     var index;
-    if (note.test(query)) {
-        filterSet[note.key] = note;
+    
+    // Guard for if all filter is currently running?
+    
+    if (note.test(currentQuery)) {
+        currentFilter.set[note.key] = note;
         
-        index = _.sortedIndex(filterList, note, sort);
-        filterList.splice(index, 0, note);
+        index = _.sortedIndex(currentFilter.list, note, sort);
+        currentFilter.list.splice(index, 0, note);
     }
 };
 
 filter.remove = function remove(note, callback) {
+    var index;
     
+    // Guard for if all filter is currently running?
+    
+    delete currentFilter.set[note.key];
+    
+    index = currentFilter.list.indexOf(note);
+    if (index !== -1) {
+        currentFilter.list.splice(index, 1);
+    }
 };
 
 module.exports = exports = filter;

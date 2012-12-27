@@ -1,8 +1,13 @@
+var _ = require('lodash');
+
 var notes = require('./notes');
 
 var activeNote = null;
 var noteListDiv;
 var noteViewDiv;
+
+var noteSet = {};
+var noteList = [];
 
 var createNoteDiv = function createNoteDiv(note) {
     var noteDiv, titleDiv, previewDiv;
@@ -19,29 +24,52 @@ var createNoteDiv = function createNoteDiv(note) {
     
     noteDiv = document.createElement('div');
     noteDiv.classList.add('note');
-    noteDiv.append(titleDiv);
-    noteDiv.append(previewDiv);
+    noteDiv.appendChild(titleDiv);
+    noteDiv.appendChild(previewDiv);
     
     return noteDiv;
 }
 
-var changed = function changed(filter) {
+var handleInit = function handleInit(err) {
+    if (err) {
+        console.log(err);
+    }
+};
+
+var handleFilter = function handleFilter(filter) {
     var i, note, noteDiv;
+
+    noteSet = filter.set;
+    noteList = filter.list;
+    
+    // Only change the modified notes?
     
     noteListDiv.innerHTML = '';
-    
-    for (i = 0; i < filter.length; i+= 1) {
-        note = notes.get(filter[i]);
+
+    for (i = 0; i < noteList.length; i += 1) {
+        note = noteList[i];
         noteDiv = createNoteDiv(note);
         
-        if (activeNote && activeNote === note.name) {
+        if (activeNote && activeNote === note.key) {
             noteDiv.classList.add('active-note');
         }
         
         noteListDiv.appendChild(noteDiv);
     }
-}
+};
+
+var init = function init() {
+    //debugger;
+    noteListDiv = document.querySelector('#notelistcol');
+    noteViewDiv = document.querySelector('#noteviewcol');
+    
+    notes.init({
+        init: handleInit,
+        filter: handleFilter
+    });
+};
 
 window.onload = function () {
-    
-}
+    setTimeout(init, 5000);
+};
+

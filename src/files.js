@@ -70,9 +70,10 @@ files.watch = function watch(dir, callbacks) {
             callbacks.init(err);
         } else {
             m_watch.createMonitor(dir, function (monitor) {
-                var initialNotes = {},
-                    files = _.keys(monitor.files),
-                    init = _.after(files.length, callbacks.init);
+                var initialNotes = {}, files, init;
+                
+                files = _.keys(monitor.files);
+                init = _.after(files.length, callbacks.init);
 
                 files.forEach(function (file) {
                     readFileAsNote(file, function (note) {

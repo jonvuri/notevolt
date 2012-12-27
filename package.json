@@ -1,5 +1,5 @@
 {
-	"main": "index.html",
+	"main": "src/index.html",
 	"name": "Note Volt",
 	"version": "0.1",
     "author": "Jonathan Rajavuori <jrajav@gmail.com>",
@@ -22,6 +22,6 @@
         "chai": "~1.4"
     },
 	"window": {
-		"toolbar": false
+		"toolbar": true
 	}
 }
