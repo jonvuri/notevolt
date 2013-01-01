@@ -1,22 +1,19 @@
-$searchheight = 1.4em
-$line = 1.15em
-$titleheight = 1
-$previewheight = 3
+$line = 1.2em
+$search_height = $line + 0.2em
+$title_height = 1
+$preview_height = 2
 
-// Keep OS X from bouncing our whole UI around
-html, body
-    overflow: hidden
 
-#full
-    width: 100%
-    height: 100%
+body
+    overflow: hidden  // Keep OS X from bouncing our whole UI around
+    font-family: 'Source Sans Pro'
 
 #searchbar
     position: absolute
     top: 0
     left: 0
     width: 100%
-    height: $searchheight
+    height: $search_height
 
 #searchbox
     width: 100%
@@ -26,33 +23,42 @@ html, body
 
 #notelistcol
     position: absolute
-    top: $searchheight
+    top: $search_height
     bottom: 0
     left: 0
     overflow: auto
     width: 30%
+    border-right: 1px solid darkgrey
 
 #noteviewcol
     position: absolute
-    top: $searchheight
+    top: $search_height
     bottom: 0
     right: 0
     overflow: auto
     width: 70%
 
-#note
-    width: 100%
-    height: $line * ($titleheight + $previewheight)
+.note
+    font-size: 80%
+    padding: ($line / 10) ($line / 4) ($line / 4) ($line / 4)
+    border-bottom: 1px solid darkgrey
+    cursor: pointer
 
-#note-title
+.note-title
     width: 100%
-    height: $line * $titleheight
+    line-height: $line
+    height: $line * $title_height
+    font-weight: bold
     white-space: nowrap
     text-overflow: ellipsis
     overflow: hidden
 
-#note-preview
+.note-preview
     width: 100%
-    height: $line * $previewheight
+    line-height: $line
+    height: $line * $preview_height
+    color: darkgrey
     text-overflow: ellipsis
     overflow: hidden
+    z-index: 100
+

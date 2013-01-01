@@ -15,12 +15,10 @@ var createNoteDiv = function createNoteDiv(note) {
     titleDiv = document.createElement('div');
     titleDiv.classList.add('note-title');
     titleDiv.textContent = note.title;
-    //titleDiv.append(document.createTextNode(note.title));
     
     previewDiv = document.createElement('div');
     previewDiv.classList.add('note-preview');
     previewDiv.textContent = note.contents.slice(0, 4000);
-    //previewDiv.append(document.createTextNode(note.contents.slice(0, 4000)));
     
     noteDiv = document.createElement('div');
     noteDiv.classList.add('note');
@@ -58,18 +56,13 @@ var handleFilter = function handleFilter(filter) {
     }
 };
 
-var init = function init() {
-    //debugger;
+//window.onload = function onload() {
     noteListDiv = document.querySelector('#notelistcol');
     noteViewDiv = document.querySelector('#noteviewcol');
-    
+
     notes.init({
         init: handleInit,
         filter: handleFilter
     });
-};
-
-window.onload = function () {
-    setTimeout(init, 5000);
-};
+//};
 
