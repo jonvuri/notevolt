@@ -11,7 +11,7 @@ var currentQuery = '',
     };
 
 var test = function test(note, query) {
-    return note.indexOf(query) !== -1;
+    return (note.title.indexOf(query) !== -1) || (note.contents.indexOf(query) !== -1);
 };
 
 var timeModifiedSort = function timeModifiedSort(note) {
@@ -23,8 +23,7 @@ var timeModifiedSort = function timeModifiedSort(note) {
 var sort = timeModifiedSort;
 
 filter.all = function all(newQuery, allNotes, callback) {
-    var newFilterSet = {},
-        oldQuery = currentQuery;
+    var newFilterSet = {};
     
     currentQuery = newQuery;
 
@@ -44,7 +43,7 @@ filter.all = function all(newQuery, allNotes, callback) {
         newFilterSet = allNotes;
     } else {
         _.each(allNotes, function (note, key) {
-            if (note.test(query)) {
+            if (test(note, newQuery)) {
                 newFilterSet[key] = note;
             }
         });

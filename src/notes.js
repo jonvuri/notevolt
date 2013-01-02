@@ -9,6 +9,10 @@ var notes = {};
 var allNotes = {},
     callbacks;
 
+notes.filter = function (query) {
+    return filter.all(query, allNotes, callbacks.filter);
+};
+
 notes.init = function init(cbs) {
     callbacks = _.defaults(cbs, {
         init: function () {},
@@ -32,10 +36,6 @@ notes.init = function init(cbs) {
             filter.remove(note, callbacks.filter);
         }
     });
-};
-
-notes.filter = function (query) {
-    return filter.all(query, allNotes, callbacks.filter);
 };
 
 module.exports = exports = notes;
