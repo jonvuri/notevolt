@@ -38,4 +38,13 @@ notes.init = function init(cbs) {
     });
 };
 
+notes.update = function update(note, callback) {
+    return files.update(note, function (err) {
+        if (!err) {
+            delete allNotes[note.getKey()];
+        }
+        callback.apply(null, arguments);
+    });
+};
+
 module.exports = exports = notes;

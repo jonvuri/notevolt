@@ -60,12 +60,13 @@ filter.add = function add(note, callback) {
     
     // Guard for if all filter is currently running?
     
-    if (note.test(currentQuery)) {
-        currentFilter.set[note.key] = note;
+    if (test(note, currentQuery)) {
+        currentFilter.set[note.getKey()] = note;
         
-        index = _.sortedIndex(currentFilter.list, note, sort);
-        currentFilter.list.splice(index, 0, note);
+        currentFilter.list = _.sortBy(currentFilter.set, sort);
     }
+    
+    callback(currentFilter);
 };
 
 filter.remove = function remove(note, callback) {
@@ -73,12 +74,14 @@ filter.remove = function remove(note, callback) {
     
     // Guard for if all filter is currently running?
     
-    delete currentFilter.set[note.key];
+    delete currentFilter.set[note.getKey()];
     
     index = currentFilter.list.indexOf(note);
     if (index !== -1) {
         currentFilter.list.splice(index, 1);
     }
+    
+    callback(currentFilter);
 };
 
 module.exports = exports = filter;

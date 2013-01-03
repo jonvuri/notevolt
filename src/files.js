@@ -27,8 +27,9 @@ var readFileAsNote = function readFileAsNote(file, callback) {
                             callback(null);
                         } else {
                             callback(makeNote({
-                                key: file,
-                                title: path.basename(file, '.txt'),
+                                directory: path.dirname(file),
+                                extension: path.extname(file),
+                                title: path.basename(file),
                                 contents: contents,
                                 timeModified: stats.mtime
                             }));
@@ -92,8 +93,9 @@ files.watch = function watch(dir, callbacks) {
     });
 };
 
-files.update = function update(note) {
-	
+files.update = function update(note, callback) {
+    var notepath = path.join(note.directory, note.title + note.extension);
+    fs.writeFile(notepath, note.contents, callback);
 };
 
 module.exports = exports = files;

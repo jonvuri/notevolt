@@ -1,18 +1,18 @@
-var crypto = require('crypto');
+var path = require('path');
 
 var note_prototype = {};
 
-note_prototype.key = null;
+note_prototype.directory = null;
+note_prototype.extension = null;
+
 note_prototype.title = null;
 note_prototype.contents = null;
+
 note_prototype.timeModified = null;
 
-// Is this necessary?
-note_prototype.toString = function () {
-	var md5 = crypto.createHash('md5');
-	md5.update(this.title);
-	md5.update(this.contents);
-	return md5.digest();
-}
+// Key <--> Note filename
+note_prototype.getKey = function () {
+    return path.join(this.directory, this.title + this.extension);
+};
 
 module.exports = exports = note_prototype;
