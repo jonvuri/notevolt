@@ -15,4 +15,4 @@ note_prototype.getKey = function () {
     return path.join(this.directory, this.title + this.extension);
 };
 
-module.exports = exports = note_prototype;
+exports = note_prototype;

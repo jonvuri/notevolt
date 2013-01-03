@@ -17,4 +17,4 @@ magic.stringOrNull = function stringOrNull(buffer, callback) {
     });
 };
 
-module.exports = exports = magic;
+exports = magic;

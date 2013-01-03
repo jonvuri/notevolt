@@ -98,4 +98,4 @@ files.update = function update(note, callback) {
     fs.writeFile(notepath, note.contents, callback);
 };
 
-module.exports = exports = files;
+exports = files;

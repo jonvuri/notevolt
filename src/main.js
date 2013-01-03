@@ -1,9 +1,5 @@
-var _ = require('lodash');
-
 var notes = require('./notes');
 
-var noteSet = {};
-var noteList = [];
 var noteDivs = {};
 var activeNoteKey = null;
 var noteListDiv = document.querySelector('#notelistcol');
@@ -14,7 +10,7 @@ var makeNoteView = function makeNoteView(note) {
     
     noteView.classList.add('note-view');
     noteView.value = note.contents;
-    noteView.addEventListener('blur', function handleBlur() {
+    noteView.addEventListener('blur', function () {
         note.contents = noteView.value;
         activeNoteKey = note.getKey();
         notes.update(note, function (err) {
@@ -40,59 +36,49 @@ var changeActiveNote = function changeActiveNote(note) {
 };
 
 var makeNoteDiv = function makeNoteDiv(note) {
-    var noteDiv, titleDiv, previewDiv;
-    
-    titleDiv = document.createElement('div');
+    var titleDiv = document.createElement('div');
     titleDiv.classList.add('note-title');
     titleDiv.textContent = note.title;
     
-    previewDiv = document.createElement('div');
+    var previewDiv = document.createElement('div');
     previewDiv.classList.add('note-preview');
     previewDiv.textContent = note.contents.slice(0, 4096);
     
-    noteDiv = document.createElement('div');
+    var noteDiv = document.createElement('div');
     noteDiv.classList.add('note');
     noteDiv.appendChild(titleDiv);
     noteDiv.appendChild(previewDiv);
-    noteDiv.addEventListener('click', function handleClick() {
+    noteDiv.addEventListener('click', function () {
         changeActiveNote(note);
     });
     
     return noteDiv;
 };
 
-document.querySelector('#searchbox').addEventListener('input',
-    function handleInput(ev) {
-        notes.filter(ev.target.value);
-    });
+document.querySelector('#searchbox').addEventListener('input', function (ev) {
+    notes.filter(ev.target.value);
+});
 
 notes.init({
-    init: function handleInit(err) {
+    init: function (err) {
         if (err) {
             console.log(err);
         }
     },
-    filter: function handleFilter(filter) {
-        var i, noteDiv;
-        
-        noteSet = filter.set;
-        noteList = filter.list;
-        
-        // Only change the modified notes?
-        
+    filter: function (filter) {
         noteListDiv.innerHTML = '';
         noteDivs = {};
 
-        for (i = 0; i < noteList.length; i += 1) {
-            noteDiv = makeNoteDiv(noteList[i]);
-            
-            if (activeNoteKey === noteList[i].getKey()) {
+        filter.list.forEach(function (note) {
+            var noteKey = note.getKey();
+            var noteDiv = makeNoteDiv(note);
+
+            if (activeNoteKey === noteKey) {
                 noteDiv.classList.add('active-note');
             }
-            
+
             noteListDiv.appendChild(noteDiv);
-            noteDivs[noteList[i].getKey()] = noteDiv;
-        }
+            noteDivs[noteKey] = noteDiv;
+        });
     }
 });
-
