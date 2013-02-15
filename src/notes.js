@@ -47,4 +47,4 @@ notes.update = function update(note, callback) {
     });
 };
 
-exports = notes;
+module.exports = exports = notes;

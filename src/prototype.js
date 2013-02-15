@@ -8,6 +8,9 @@ note_prototype.extension = null;
 note_prototype.title = null;
 note_prototype.contents = null;
 
+note_prototype.lowercaseTitle = null;
+note_prototype.lowercaseContents = null;
+
 note_prototype.timeModified = null;
 
 // Key <--> Note filename
@@ -15,4 +18,4 @@ note_prototype.getKey = function () {
     return path.join(this.directory, this.title + this.extension);
 };
 
-exports = note_prototype;
+module.exports = exports = note_prototype;

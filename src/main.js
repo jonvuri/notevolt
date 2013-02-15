@@ -1,18 +1,18 @@
 var notes = require('./notes');
 
-var noteDivs = {};
-var activeNoteKey = null;
-var noteListDiv = document.querySelector('#notelistcol');
+var activeNote = null;
 var noteViewDiv = document.querySelector('#noteviewcol');
+var noteListDiv = document.querySelector('#notelistcol');
 
-var makeNoteView = function makeNoteView(note) {
+var makeNoteView = function makeNoteView(note, updateCallback) {
+    if (!updateCallback) updateCallback = function () {};
+
     var noteView = document.createElement('textarea');
-    
     noteView.classList.add('note-view');
     noteView.value = note.contents;
+    
     noteView.addEventListener('blur', function () {
         note.contents = noteView.value;
-        activeNoteKey = note.getKey();
         notes.update(note, function (err) {
             if (err) {
                 console.log(err);
@@ -20,36 +20,45 @@ var makeNoteView = function makeNoteView(note) {
         });
     });
     
+    noteView.addEventListener('input', function () {
+        note.contents = noteView.value;
+        updateCallback();
+    });
+    
     return noteView;
 };
 
-var changeActiveNote = function changeActiveNote(note) {
-    if (activeNoteKey) {
-        noteDivs[activeNoteKey].classList.remove('active-note');
-    }
-    debugger;
-    activeNoteKey = note.getKey();
-    noteDivs[activeNoteKey].classList.add('active-note');
-    
-    noteViewDiv.innerHTML = '';
-    noteViewDiv.appendChild(makeNoteView(note));
-};
-
-var makeNoteDiv = function makeNoteDiv(note) {
+var makeNoteListItemDiv = function makeNoteListItemDiv(note) {
     var titleDiv = document.createElement('div');
-    titleDiv.classList.add('note-title');
+    titleDiv.classList.add('notelist-title');
     titleDiv.textContent = note.title;
     
     var previewDiv = document.createElement('div');
-    previewDiv.classList.add('note-preview');
+    previewDiv.classList.add('notelist-preview');
     previewDiv.textContent = note.contents.slice(0, 4096);
     
     var noteDiv = document.createElement('div');
-    noteDiv.classList.add('note');
+    noteDiv.classList.add('notelistitem');
     noteDiv.appendChild(titleDiv);
     noteDiv.appendChild(previewDiv);
+    
     noteDiv.addEventListener('click', function () {
-        changeActiveNote(note);
+        if (note !== activeNote) {
+            activeNote = note;
+
+            var activeNoteDiv = document.querySelector('.active-notelistitem');
+            if (activeNoteDiv) {
+                activeNoteDiv.classList.remove('active-notelistitem');
+            }
+            
+            this.classList.add('active-notelistitem');
+            
+            noteViewDiv.innerHTML = '';
+            noteViewDiv.appendChild(makeNoteView(note, function update() {
+                titleDiv.textContent = note.title;
+                previewDiv.textContent = note.contents.slice(0, 4096);
+            }));
+        }
     });
     
     return noteDiv;
@@ -66,19 +75,23 @@ notes.init({
         }
     },
     filter: function (filter) {
+        var activeNotePresent = false;
+        
         noteListDiv.innerHTML = '';
-        noteDivs = {};
-
+        
         filter.list.forEach(function (note) {
-            var noteKey = note.getKey();
-            var noteDiv = makeNoteDiv(note);
-
-            if (activeNoteKey === noteKey) {
-                noteDiv.classList.add('active-note');
+            var noteListItemDiv = makeNoteListItemDiv(note);
+            
+            if (note === activeNote) {
+                activeNotePresent = true;
+                noteListItemDiv.classList.add('active-notelistitem');
             }
-
-            noteListDiv.appendChild(noteDiv);
-            noteDivs[noteKey] = noteDiv;
+            
+            noteListDiv.appendChild(noteListItemDiv);
         });
+        
+        if (!activeNotePresent) {
+            noteViewDiv.innerHTML = '';
+        }
     }
 });

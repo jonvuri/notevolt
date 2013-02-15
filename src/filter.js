@@ -6,14 +6,31 @@ var filter = {};
 
 var lastQuery = null,
     lastFilter = null,
-    currentQuery = '',
+    currentQuery = '', // Lowercased
     currentFilter = {
         set: {},
-        list: []
+        list: [],
+        select: null
     };
 
+
+var noteToLower = function noteToLower(note) {
+    if (note.lowercaseTitle === null) {
+        note.lowercaseTitle = note.title.toLocaleLowerCase();
+    }
+    
+    if (note.lowercaseContents === null) {
+        note.lowercaseContents = note.contents.toLocaleLowerCase();
+    }
+};
+
+
+// Lowercased (So case-insensitive) contains test on note title and contents
 var test = function test(note, query) {
-    return (note.title.indexOf(query) !== -1) || (note.contents.indexOf(query) !== -1);
+    noteToLower(note);
+
+    return (note.lowercaseTitle.indexOf(query) !== -1)
+        || (note.lowercaseContents.indexOf(query) !== -1);
 };
 
 var timeModifiedSort = function timeModifiedSort(note) {
@@ -23,6 +40,7 @@ var timeModifiedSort = function timeModifiedSort(note) {
 
 // Sort function intended for _.sort* functions, not Array.sort
 var sort = timeModifiedSort;
+
 
 var sendFilter = function (callback) {
     currentFilter.list = _.sortBy(currentFilter.set, sort);
@@ -36,7 +54,8 @@ filter.all = function all(newQuery, allNotes, callback) {
     lastFilter = currentFilter;
     currentFilter = {
         set: {},
-        list: []
+        list: [],
+        select: null
     };
 
     // Check if existing query is prefix of new query
@@ -53,9 +72,16 @@ filter.all = function all(newQuery, allNotes, callback) {
     if (currentQuery === '') {
         currentFilter.set = allNotes;
     } else {
+        currentQuery = currentQuery.toLocaleLowerCase();
+
         _.each(allNotes, function (note, key) {
             if (test(note, currentQuery)) {
                 currentFilter.set[key] = note;
+                
+                if (currentFilter.select === null &&
+                    currentQuery === note.lowercaseTitle.substring(0, currentQuery.length)) {
+                    currentFilter.select = note;
+                }
             }
         });
     }
@@ -80,4 +106,4 @@ filter.remove = function remove(note, callback) {
     sendFilter(callback);
 };
 
-exports = filter;
+module.exports = exports = filter;

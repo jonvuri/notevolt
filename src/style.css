@@ -4,12 +4,15 @@ body {
 }
 #searchbar {
   position: absolute;
+  font-family: inherit;
   top: 0;
   left: 0;
   width: 100%;
-  height: 1.4em;
+  height: 1.6em;
 }
 #searchbox {
+  font-size: 100%;
+  font-family: inherit;
   width: 100%;
   height: 100%;
   padding: 0;
@@ -17,7 +20,7 @@ body {
 }
 #notelistcol {
   position: absolute;
-  top: 1.4em;
+  top: 1.6em;
   bottom: 0;
   left: 0;
   overflow: auto;
@@ -26,41 +29,54 @@ body {
 }
 #noteviewcol {
   position: absolute;
-  top: 1.4em;
+  top: 1.6em;
   bottom: 0;
   right: 0;
   overflow: auto;
   width: 70%;
+  box-sizing: border-box;
 }
-.note {
+.notelistitem {
+  padding-top: 1px;
   font-size: 80%;
-  padding: 0.12em 0.3em 0.3em 0.3em;
+  box-sizing: border-box;
   border-bottom: 1px solid #a9a9a9;
   cursor: pointer;
 }
-.note-title {
-  width: 100%;
+.notelist-title {
+  margin: 0.4em 0.4em 0.2em 0.4em;
   line-height: 1.2em;
   height: 1.2em;
   font-weight: bold;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+  box-sizing: border-box;
 }
-.note-preview {
-  width: 100%;
+.notelist-preview {
+  margin: 0.2em 0.4em 0.4em 0.4em;
   line-height: 1.2em;
   height: 2.4em;
   color: #a9a9a9;
   text-overflow: ellipsis;
   overflow: hidden;
   z-index: 100;
+  box-sizing: border-box;
 }
-.active-note {
-  background-color: #00f;
+.active-notelistitem {
+  background-color: #dd4b39;
+}
+.active-notelistitem .notelist-title,
+.active-notelistitem .notelist-preview {
+  color: #eee;
+  text-shadow: 1px 1px rgba(0,0,0,0.3);
 }
 .note-view {
+  font-size: 100%;
+  font-family: inherit;
   width: 100%;
   height: 100%;
   resize: none;
+  border: none;
+  border-left: 1px solid #a9a9a9;
 }
