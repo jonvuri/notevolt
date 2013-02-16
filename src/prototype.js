@@ -8,9 +8,6 @@ note_prototype.extension = null;
 note_prototype.title = null;
 note_prototype.contents = null;
 
-note_prototype.lowercaseTitle = null;
-note_prototype.lowercaseContents = null;
-
 note_prototype.timeModified = null;
 
 // Key <--> Note filename

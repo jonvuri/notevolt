@@ -4,33 +4,18 @@ var config = require('./config');
 
 var filter = {};
 
-var lastQuery = null,
-    lastFilter = null,
-    currentQuery = '', // Lowercased
+var currentTerms = Object.create(null),
     currentFilter = {
-        set: {},
+        set: Object.create(null),
         list: [],
         select: null
     };
 
-
-var noteToLower = function noteToLower(note) {
-    if (note.lowercaseTitle === null) {
-        note.lowercaseTitle = note.title.toLocaleLowerCase();
-    }
-    
-    if (note.lowercaseContents === null) {
-        note.lowercaseContents = note.contents.toLocaleLowerCase();
-    }
-};
-
-
 // Lowercased (So case-insensitive) contains test on note title and contents
 var test = function test(note, query) {
-    noteToLower(note);
-
-    return (note.lowercaseTitle.indexOf(query) !== -1)
-        || (note.lowercaseContents.indexOf(query) !== -1);
+    query = query.toLocaleLowerCase();
+    return (note.title.toLocaleLowerCase().indexOf(query) !== -1)
+        || (note.contents.toLocaleLowerCase().indexOf(query) !== -1);
 };
 
 var timeModifiedSort = function timeModifiedSort(note) {
@@ -39,71 +24,116 @@ var timeModifiedSort = function timeModifiedSort(note) {
 };
 
 // Sort function intended for _.sort* functions, not Array.sort
-var sort = timeModifiedSort;
+var sortFunc = timeModifiedSort;
 
+var splitQuery = function splitQuery(query) {
+    var i,
+        terms = [],
+        quoteSplit = query.split('"'),
+        spaceSplit = function spaceSplit(s) {
+            var j, split = s.split(/\s+/);
+            for (j = 0; j < split.length; j += 1) {
+                if (split[j] !== '') {
+                    terms.push(split[j]);
+                }
+            }
+        };
+    
+    if (quoteSplit.length > 2) {
+        for (i = 0; i < quoteSplit.length - 1; i += 1) {
+            if (i % 2 === 0) { // Even terms - outside quotes
+                spaceSplit(quoteSplit[i]);
+            } else if (quoteSplit[i] !== '') { // Odd terms - inside quotes (but must not be empty)
+                terms.push(quoteSplit[i]);
+            }
+        }
+        spaceSplit(quoteSplit[quoteSplit.length - 1]); // Last index won't be inside quotes, whether odd or even
+    } else if (quoteSplit.length === 2) { // Only one quote
+        spaceSplit(query.replace('"', ''));
+    } else {
+        spaceSplit(query);
+    }
+    
+    return terms;
+};
 
-var sendFilter = function (callback) {
-    currentFilter.list = _.sortBy(currentFilter.set, sort);
+filter.all = function all(query, allNotes, callback) {
+    var newTerms = Object.create(null),
+        newFilter = {};
+    
+    _.each(splitQuery(query), function (term) {
+        if (!newTerms[term]) {
+            newTerms[term] =
+                currentTerms[term] // Reuse previously computed (and kept up-to-date) filter for this term, if any
+                || _.reduce(allNotes, function (termSet, note, key) {
+                        if (test(note, term)) {
+                            termSet[key] = note;
+                        }
+                        return termSet;
+                    }, Object.create(null));
+        }
+    });
+    
+    newFilter.set = _.pick(allNotes, function (note, key) {
+        return _.every(newTerms, key);
+    });
+    
+    newFilter.list = _.sortBy(newFilter.set, sortFunc);
+    
+    _.each(newFilter.list, function (note) {
+        if (query === note.title.toLocaleLowerCase().substring(0, query.length)) {
+            newFilter.select = note;
+            return false;
+        }
+    });
+
+    currentTerms = newTerms;
+    currentFilter = newFilter;
+
     callback(currentFilter);
 };
 
-filter.all = function all(newQuery, allNotes, callback) {
-    lastQuery = currentQuery;
-    currentQuery = newQuery;
-
-    lastFilter = currentFilter;
-    currentFilter = {
-        set: {},
-        list: [],
-        select: null
-    };
-
-    // Check if existing query is prefix of new query
-    // Split query on words
-    // Add notes for words in both prefix and query
-    // For remaining words, start iterations to indexOf in all notes
-    // 
-    // In each iteration:
-    //  If query does not equal global query, exit and do not set set/list
-    //  
-    // Sort set into list
-    // Set global set and global list, call callback
-
-    if (currentQuery === '') {
-        currentFilter.set = allNotes;
-    } else {
-        currentQuery = currentQuery.toLocaleLowerCase();
-
-        _.each(allNotes, function (note, key) {
-            if (test(note, currentQuery)) {
-                currentFilter.set[key] = note;
-                
-                if (currentFilter.select === null &&
-                    currentQuery === note.lowercaseTitle.substring(0, currentQuery.length)) {
-                    currentFilter.select = note;
-                }
-            }
-        });
-    }
-
-    lastQuery = null;
-    lastFilter = null;
-    
-    sendFilter(callback);
-};
-
 filter.add = function add(note, callback) {
-    if (test(note, currentQuery)) {
-        currentFilter.set[note.getKey()] = note;
-    }
+    var added = false,
+        key = note.getKey();
+
+    _.each(currentTerms, function (termSet, term) {
+        if (test(note, term)) {
+            termSet[key] = note;
+            if (!added) {
+                added = true;
+                currentFilter.set[key] = note;
+                currentFilter.list.splice(_.sortedIndex(currentFilter.list, note, sortFunc), 0, note);
+            }
+        }
+    });
     
-    sendFilter(callback);
+    if (added) {
+        callback(currentFilter);
+    }
 };
 
 filter.remove = function remove(note, callback) {
-    delete currentFilter.set[note.getKey()];
+    var removed = false,
+        key = note.getKey();
     
-    sendFilter(callback);
+    _.each(currentTerms, function (termSet) {
+        delete termSet[key];
+    });
+    
+    delete currentFilter.set[key];
+    
+    _.each(currentFilter.list, function (listNote, index) {
+        if (listNote === note) {
+            currentFilter.list.splice(index, 1);
+            removed = true;
+            return false;
+        }
+    });
+
+    if (removed) {
+        callback(currentFilter);
+    }
 };
 
 module.exports = exports = filter;
