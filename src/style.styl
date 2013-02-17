@@ -1,5 +1,6 @@
 $line = 1.2em
-$search_height = $line + 0.4em
+//$search_height = $line + 0.4em
+$search_height = 24px
 $primary_color = #dd4b39
 $selected_text_color = #eee
 $selected_text_shadow_color = rgba(0, 0, 0, 0.3)
@@ -28,7 +29,7 @@ body
 
 #notelistcol
     position: absolute
-    top: $search_height
+    top: $search_height + 4px
     bottom: 0
     left: 0
     overflow: auto
@@ -37,7 +38,7 @@ body
 
 #noteviewcol
     position: absolute
-    top: $search_height
+    top: $search_height + 4px
     bottom: 0
     right: 0
     overflow: auto

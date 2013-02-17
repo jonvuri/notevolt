@@ -4,12 +4,9 @@ var config = require('./config');
 
 var filter = {};
 
-var currentTerms = Object.create(null),
-    currentFilter = {
-        set: Object.create(null),
-        list: [],
-        select: null
-    };
+var currentQuery = '',
+    currentTerms = Object.create(null),
+    currentFilter; // Properties: set (hash of currently filtered notes), list (array of same), select (note to be autocompleted)
 
 // Lowercased (So case-insensitive) contains test on note title and contents
 var test = function test(note, query) {
@@ -58,13 +55,15 @@ var splitQuery = function splitQuery(query) {
 };
 
 filter.all = function all(query, allNotes, callback) {
-    var newTerms = Object.create(null),
-        newFilter = {};
+    var terms = Object.create(null),
+        filter = {};
     
     _.each(splitQuery(query), function (term) {
-        if (!newTerms[term]) {
-            newTerms[term] =
-                currentTerms[term] // Reuse previously computed (and kept up-to-date) filter for this term, if any
+        if (!terms[term]) {
+            terms[term] =
+                // Reuse previous (and up-to-date) filter for this term, if any
+                currentTerms[term]
+                // Construct object with notes (by their keys) that contain this term
                 || _.reduce(allNotes, function (termSet, note, key) {
                         if (test(note, term)) {
                             termSet[key] = note;
@@ -74,21 +73,26 @@ filter.all = function all(query, allNotes, callback) {
         }
     });
     
-    newFilter.set = _.pick(allNotes, function (note, key) {
-        return _.every(newTerms, key);
+    filter.set = _.pick(allNotes, function (note, key) {
+        return _.every(terms, key);
     });
     
-    newFilter.list = _.sortBy(newFilter.set, sortFunc);
+    filter.list = _.sortBy(filter.set, sortFunc);
     
-    _.each(newFilter.list, function (note) {
-        if (query === note.title.toLocaleLowerCase().substring(0, query.length)) {
-            newFilter.select = note;
-            return false;
-        }
-    });
-
-    currentTerms = newTerms;
-    currentFilter = newFilter;
+    // TODO: Find what NV does to determine whether or not to autocomplete
+    if (query !== '' && query.length > currentQuery.length) {
+        var lowerQuery = query.toLocaleLowerCase();
+        _.each(filter.list, function (note) {
+            if (lowerQuery === note.title.toLocaleLowerCase().substring(0, lowerQuery.length)) {
+                filter.select = note;
+                return false;
+            }
+        });
+    }
+    
+    currentQuery = query;
+    currentTerms = terms;
+    currentFilter = filter;
 
     callback(currentFilter);
 };

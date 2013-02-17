@@ -1,8 +1,24 @@
 var notes = require('./notes');
 
-var activeNote = null;
 var noteViewDiv = document.querySelector('#noteviewcol');
 var noteListDiv = document.querySelector('#notelistcol');
+
+var autocompletedNote = null;
+
+var makeActiveNote = function makeActiveNote(note, div) {
+    var activeNoteDiv = document.querySelector('.active-notelistitem');
+    if (activeNoteDiv) {
+        activeNoteDiv.classList.remove('active-notelistitem');
+    }
+    
+    div.classList.add('active-notelistitem');
+    
+    noteViewDiv.innerHTML = '';
+    noteViewDiv.appendChild(makeNoteView(note, function update() {
+        titleDiv.textContent = note.title;
+        previewDiv.textContent = note.contents.slice(0, 2048);
+    }));
+};
 
 var makeNoteView = function makeNoteView(note, updateCallback) {
     if (!updateCallback) updateCallback = function () {};
@@ -35,7 +51,7 @@ var makeNoteListItemDiv = function makeNoteListItemDiv(note) {
     
     var previewDiv = document.createElement('div');
     previewDiv.classList.add('notelist-preview');
-    previewDiv.textContent = note.contents.slice(0, 4096);
+    previewDiv.textContent = note.contents.slice(0, 2048);
     
     var noteDiv = document.createElement('div');
     noteDiv.classList.add('notelistitem');
@@ -43,29 +59,26 @@ var makeNoteListItemDiv = function makeNoteListItemDiv(note) {
     noteDiv.appendChild(previewDiv);
     
     noteDiv.addEventListener('click', function () {
-        if (note !== activeNote) {
-            activeNote = note;
-
-            var activeNoteDiv = document.querySelector('.active-notelistitem');
-            if (activeNoteDiv) {
-                activeNoteDiv.classList.remove('active-notelistitem');
-            }
-            
-            this.classList.add('active-notelistitem');
-            
-            noteViewDiv.innerHTML = '';
-            noteViewDiv.appendChild(makeNoteView(note, function update() {
-                titleDiv.textContent = note.title;
-                previewDiv.textContent = note.contents.slice(0, 4096);
-            }));
-        }
+        makeActiveNote(note, this);
     });
     
     return noteDiv;
 };
 
-document.querySelector('#searchbox').addEventListener('input', function (ev) {
+var searchbox = document.querySelector('#searchbox');
+
+searchbox.addEventListener('input', function (ev) {
     notes.filter(ev.target.value);
+});
+
+searchbox.addEventListener('keydown', function (ev) {
+    if (ev.which === 13) { // Enter key
+        if (autocompletedNote) {
+            // Focus note view
+        } else {
+            // Create note
+        }
+    }
 });
 
 notes.init({
@@ -75,23 +88,27 @@ notes.init({
         }
     },
     filter: function (filter) {
-        var activeNotePresent = false;
-        
         noteListDiv.innerHTML = '';
+        noteViewDiv.innerHTML = '';
+        
+        autocompletedNote = null;
         
         filter.list.forEach(function (note) {
             var noteListItemDiv = makeNoteListItemDiv(note);
             
-            if (note === activeNote) {
-                activeNotePresent = true;
-                noteListItemDiv.classList.add('active-notelistitem');
+            if (note === filter.select) {
+                autocompletedNote = note;
+                makeActiveNote(note, noteListItemDiv);
+                
+                // Backspace is a problem
+                var inputLength = searchbox.value.length;
+                searchbox.value += note.title.slice(inputLength);
+                setTimeout(function () {
+                    searchbox.setSelectionRange(inputLength, inputLength + note.title.length);
+                }, 0);
             }
             
             noteListDiv.appendChild(noteListItemDiv);
         });
-        
-        if (!activeNotePresent) {
-            noteViewDiv.innerHTML = '';
-        }
     }
 });
