@@ -100,10 +100,13 @@ notes.init({
                 autocompletedNote = note;
                 makeActiveNote(note, noteListItemDiv);
                 
-                // Backspace is a problem
+                // Fill in the rest of the search input with the remaining characters in the first
+                // note title that has the current query as a prefix (a very basic autocomplete)
                 var inputLength = searchbox.value.length;
                 searchbox.value += note.title.slice(inputLength);
+                searchbox.setSelectionRange(inputLength, inputLength + note.title.length);
                 setTimeout(function () {
+                    // Have to do it again to work around a 3-year-old Chromium bug...
                     searchbox.setSelectionRange(inputLength, inputLength + note.title.length);
                 }, 0);
             }
