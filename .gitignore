@@ -1,4 +1,5 @@
 node_modules/*
 notes/*
+notesold/*
 test/notes/*
 *.swp

@@ -19,7 +19,7 @@ var readFileAsNote = function readFileAsNote(file, callback) {
             callback(null);
         } else {
             magic.stringOrNull(buffer, function (contents) {
-                if (!contents) {
+                if (contents == null) {
                     callback(null);
                 } else {
                     fs.stat(file, function (err, stats) {
@@ -29,7 +29,7 @@ var readFileAsNote = function readFileAsNote(file, callback) {
                             callback(makeNote({
                                 directory: path.dirname(file),
                                 extension: path.extname(file),
-                                title: path.basename(file),
+                                title: path.basename(file, '.txt'),
                                 contents: contents,
                                 timeModified: stats.mtime
                             }));

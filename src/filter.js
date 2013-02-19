@@ -5,7 +5,7 @@ var config = require('./config');
 var filter = {};
 
 var currentQuery = '',
-    currentTerms = Object.create(null),
+    currentTerms = Object.create(null), // Set of sets of notes that match each term (The term is the key for the outer set)
     currentFilter; // Properties: set (hash of currently filtered notes), list (array of same), select (note to be autocompleted)
 
 // Lowercased (So case-insensitive) contains test on note title and contents
@@ -54,22 +54,30 @@ var splitQuery = function splitQuery(query) {
     return terms;
 };
 
+var computeAutoComplete = function computeAutoComplete(filter, query) {
+    var lowerQuery = query.toLocaleLowerCase();
+    
+    _.each(filter.list, function (note) {
+        var lowerTitle = note.title.toLocaleLowerCase();
+
+        if (lowerQuery === lowerTitle.substring(0, lowerQuery.length)) {
+            filter.select = note;
+            return false;
+        }
+    });
+};
+
 filter.all = function all(query, allNotes, callback) {
     var terms = Object.create(null),
         filter = {};
     
     _.each(splitQuery(query), function (term) {
+        var testTerm = function (note) {
+            return test(note, term);
+        };
+        
         if (!terms[term]) {
-            terms[term] =
-                // Reuse previous (and up-to-date) filter for this term, if any
-                currentTerms[term]
-                // Construct object with notes (by their keys) that contain this term
-                || _.reduce(allNotes, function (termSet, note, key) {
-                        if (test(note, term)) {
-                            termSet[key] = note;
-                        }
-                        return termSet;
-                    }, Object.create(null));
+            terms[term] = currentTerms[term] || _.pick(allNotes, testTerm);
         }
     });
     
@@ -81,13 +89,7 @@ filter.all = function all(query, allNotes, callback) {
     
     // TODO: Find what NV does to determine whether or not to autocomplete
     if (query !== '' && query.length > currentQuery.length) {
-        var lowerQuery = query.toLocaleLowerCase();
-        _.each(filter.list, function (note) {
-            if (lowerQuery === note.title.toLocaleLowerCase().substring(0, lowerQuery.length)) {
-                filter.select = note;
-                return false;
-            }
-        });
+        computeAutoComplete(filter, query);
     }
     
     currentQuery = query;
@@ -98,23 +100,40 @@ filter.all = function all(query, allNotes, callback) {
 };
 
 filter.add = function add(note, callback) {
-    var added = false,
-        key = note.getKey();
+    var key = note.getKey();
 
-    _.each(currentTerms, function (termSet, term) {
-        if (test(note, term)) {
-            termSet[key] = note;
-            if (!added) {
-                added = true;
-                currentFilter.set[key] = note;
-                currentFilter.list.splice(_.sortedIndex(currentFilter.list, note, sortFunc), 0, note);
-            }
+    // No matter what, we want to refresh its index in the list (or just leave it out)
+    _.each(currentFilter.list, function (listNote, index) {
+        if (listNote.getKey() === key) {
+            currentFilter.list.splice(index, 1);
+            return false;
         }
     });
     
-    if (added) {
-        callback(currentFilter);
+    var match = true;
+    
+    _.each(currentTerms, function (termSet, term) {
+        if (test(note, term)) {
+            termSet[key] = note;
+        } else {
+            match = false;
+        }
+    });
+    
+    if (match) {
+        currentFilter.set[key] = note;
+        currentFilter.list.splice(_.sortedIndex(currentFilter.list, note, sortFunc), 0, note);
+        
+        // Recompute autocomplete
+        if (currentQuery !== '') {
+            computeAutoComplete(currentFilter, currentQuery);
+        }
+    } else {
+        delete currentFilter.set[key];
+        // It's already out of the list
     }
+    
+    callback(currentFilter);
 };
 
 filter.remove = function remove(note, callback) {

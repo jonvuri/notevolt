@@ -2,7 +2,8 @@ var _ = require('lodash');
 
 var config = require('./config'),
     files = require('./files'),
-    filter = require('./filter');
+    filter = require('./filter'),
+    noteProto = require('./prototype');
 
 var notes = {};
 
@@ -38,9 +39,32 @@ notes.init = function init(cbs) {
     });
 };
 
+notes.create = function create(title, callback) {
+    var note = _.extend(_.clone(noteProto, true), {
+        directory: config.noteDirectory,
+        extension: '.txt',
+        title: title,
+        contents: '',
+        timeModified: Date.now()
+    });
+    return files.update(note, function (err) {
+        if (err) {
+            console.log(err);
+            callback.apply(null, arguments);
+        } else {
+            allNotes[note.getKey()] = note;
+            filter.add(note, function (filter) {
+                callback(err, filter);
+            });
+        }
+    });
+};
+
 notes.update = function update(note, callback) {
     return files.update(note, function (err) {
-        if (!err) {
+        if (err) {
+            console.log(err);
+        } else {
             delete allNotes[note.getKey()];
         }
         callback.apply(null, arguments);
