@@ -1,6 +1,6 @@
-var config = {};
+var config = {}
 
-config.noteDirectory = './notes';
-config.encoding = 'utf-8';
+config.noteDirectory = './notes'
+config.encoding = 'utf-8'
 
-module.exports = exports = config;
+module.exports = exports = config

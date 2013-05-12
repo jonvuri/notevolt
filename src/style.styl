@@ -6,6 +6,60 @@ $selected_text_shadow_color = rgba(0, 0, 0, 0.3)
 $border_color = darkgrey
 
 
+
+
+// Vector icons
+
+@font-face
+    font-family: 'Typicons'
+    src: url('../res/typicons-regular-webfont.woff') format('woff')
+    font-weight: normal
+    font-style: normal
+
+//.typicn
+//    font-family: 'Typicons'
+//    -webkit-font-smoothing: antialiased
+
+//.icon-edit:before
+//    content: '9'
+
+#searcheditbutton
+    width: 22px
+    height: 22px
+    background-color: $primary_color
+    position: absolute
+    right: 0
+    top: 0
+    margin-top: 1px
+    margin-right: 1px
+    border-radius: 2px
+    cursor: pointer
+
+#searcheditbutton:hover
+    background-color: #c53727
+    background-image: linear-gradient(top, #dd4b39, #c53727)
+    //border: 1px solid #b0281a
+    box-shadow: 0 1px 1px rgba(0,0,0,0.2)
+
+#searcheditbutton:active
+    background-color: #b0281a
+    background-image: linear-gradient(top, #dd4b39, #b0281a)
+    //border: 1px solid #992a1b
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.3)
+
+#searchediticon
+    position: absolute
+    margin-top: 3px
+    margin-left: 1px
+    color: white
+    font-family: 'Typicons'
+    font-size: 20px
+    -webkit-font-smoothing: antialiased
+    -webkit-user-select: none
+
+    
+
+
 body
     overflow: hidden  // Keep OS X from bouncing our whole UI around
     font-family: 'Source Sans Pro'
@@ -25,10 +79,12 @@ body
     height: 100%
     padding: 0
     outline: none
+    border: none
+    border-bottom: 1px solid $border_color
 
 #notelistcol
     position: absolute
-    top: $search_height + 4px
+    top: $search_height + 1px
     bottom: 0
     left: 0
     overflow: auto
@@ -37,10 +93,9 @@ body
 
 #noteviewcol
     position: absolute
-    top: $search_height + 4px
+    top: $search_height + 1px
     bottom: 0
     right: 0
-    overflow: auto
     width: 70%
     box-sizing: border-box
 
@@ -87,3 +142,6 @@ body
     resize: none
     border: none
     border-left: 1px solid $border_color
+
+.note-view:focus
+    outline: $primary_color auto 5px
